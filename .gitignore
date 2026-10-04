@@ -1,0 +1,13 @@
+.env
+.DS_Store
+node_modules/
+artifacts/
+dist/
+data/
+*.sqlite
+*.sqlite-*
+.env.*
+!.env.example
+release/
+*.log
+.kilo/

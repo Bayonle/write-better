@@ -1,0 +1,45 @@
+{
+  "name": "write-better",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "npm run build && tsx --env-file-if-exists=.env server/index.ts",
+    "dev": "tsx --env-file-if-exists=.env server/index.ts --dev",
+    "build": "npm run check && vite build",
+    "check": "tsc --noEmit",
+    "test": "npm run build && node --import tsx --test test/*.test.mjs",
+    "format": "prettier --write src server test vite.config.ts tsconfig.json index.html",
+    "package": "npm run build && node scripts/package.mjs",
+    "test:package": "node --test scripts/package.test.mjs"
+  },
+  "engines": {
+    "node": ">=22.14"
+  },
+  "dependencies": {
+    "diff": "^9.0.0",
+    "markdown-it": "^15.0.2",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/markdown-it": "^14.2.0",
+    "@types/node": "^26.6.4",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^5.2.0",
+    "esbuild": "0.28.2",
+    "prettier": "^3.9.9",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^7.3.6"
+  },
+  "description": "A local writing notebook with inline alternatives and Markdown.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Bayonle/write-better.git"
+  }
+}
