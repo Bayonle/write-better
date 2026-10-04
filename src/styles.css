@@ -104,6 +104,9 @@
     color: var(--muted);
     font-size: 10px;
     line-height: 1.4;
+    text-decoration: underline;
+    text-decoration-color: var(--line);
+    text-underline-offset: 3px;
   }
   .wordmark {
     font-size: 25px;

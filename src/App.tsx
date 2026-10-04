@@ -493,7 +493,14 @@ export default function App() {
           >
             write<span>_</span>better<span className="brand-dot">.</span>
           </button>
-          <p className="brand-tagline">inspired by Jason Fried</p>
+          <a
+            className="brand-tagline"
+            href="https://x.com/jasonfried/status/2105403067793584590"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            inspired by Jason Fried
+          </a>
         </div>
         <div className="top-center" role="status">
           <span className="status-dot" />
