@@ -4,13 +4,16 @@ import { join } from "node:path";
 import type { ViteDevServer } from "vite";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { aiConfig, generateSuggestions } from "./ai";
+import { aiConfig, clearAIStatus, generateSuggestions } from "./ai";
+import { createChatGPTConnection } from "./chatgpt-connection";
 import { databasePath, getNotebookStore, notebookAPI } from "./notebook-api";
 
 const port = Number(process.env.PORT || 4317);
 const root = fileURLToPath(new URL("../dist/", import.meta.url));
 let vite: ViteDevServer | undefined;
 let aiBusy = false;
+const chatGPT = createChatGPTConnection({ onConnected: clearAIStatus });
+process.once("exit", () => chatGPT.cancel());
 
 function reply(res: ServerResponse, status: number, body: unknown) {
   res.writeHead(status, {
@@ -44,6 +47,28 @@ export async function handle(req: IncomingMessage, res: ServerResponse) {
   }
   if (url.pathname === "/api/config" && req.method === "GET") {
     return reply(res, 200, await aiConfig());
+  }
+  if (url.pathname.startsWith("/api/chatgpt/")) {
+    // Login can change local credentials: require a same-origin JSON request.
+    // Status also includes a temporary sign-in URL, so reject cross-site reads.
+    if (
+      req.headers["sec-fetch-site"] === "cross-site" ||
+      (req.headers.origin &&
+        req.headers.origin !== `http://${req.headers.host}`) ||
+      (req.method !== "GET" &&
+        (req.headers.origin !== `http://${req.headers.host}` ||
+          !req.headers["content-type"]?.startsWith("application/json")))
+    )
+      return reply(res, 403, {
+        error: "Open write_better. locally to connect ChatGPT.",
+      });
+    if (url.pathname === "/api/chatgpt/connection" && req.method === "GET")
+      return reply(res, 200, chatGPT.status());
+    if (url.pathname === "/api/chatgpt/connect" && req.method === "POST")
+      return reply(res, 200, await chatGPT.start());
+    if (url.pathname === "/api/chatgpt/cancel" && req.method === "POST")
+      return reply(res, 200, chatGPT.cancel());
+    return reply(res, 404, { error: "Not found." });
   }
   if (url.pathname === "/api/suggest" && req.method === "POST") {
     if (

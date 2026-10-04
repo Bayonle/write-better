@@ -38,6 +38,10 @@ export interface AIConfig {
   providers: Record<Provider, boolean>;
   defaultProvider: Provider;
 }
+export type ChatGPTConnection =
+  | { status: "idle" | "starting" | "connected" }
+  | { status: "waiting"; authUrl: string }
+  | { status: "error"; message: string };
 export interface AITarget extends TextSelection {
   text: string;
   docId: string;

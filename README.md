@@ -36,7 +36,7 @@ If the browser doesn't open, visit **http://127.0.0.1:4317**. If the launcher re
 - Use **Overflow** to keep passages for later.
 - Open **Drafts** to search your notebook. Removed drafts can be restored from **Recently Deleted**.
 
-Writing, formatting, alternatives, and saving work offline. Optional AI suggestions need an internet connection and your own [ChatGPT/Codex sign-in or API key](docs/GUIDE.md#ai-with-your-chatgpt-subscription). AI is never required to use the editor, and nothing is sent to AI until you ask for it.
+Writing, formatting, alternatives, and saving work offline. For optional AI, open **The Lab → Connect ChatGPT**, sign in in your browser, and return to the app. The download includes the OpenAI component it needs—no terminal commands, extra installation, or API key. Requests use your plan’s Codex allowance. See [ChatGPT sign-in and the optional API-key alternative](docs/GUIDE.md#ai-with-your-chatgpt-subscription). Nothing is sent to AI until you ask for it.
 
 ## Your drafts and backups
 
@@ -76,7 +76,7 @@ npm run test:package # Test the standalone bundle and restart persistence
 
 Built with React, TypeScript, Tailwind CSS, Vite, and SQLite. [Technical details and shortcuts](docs/GUIDE.md).
 
-Version tags (`v*`) trigger Mac, Windows, and Linux builds. Each bundle must pass the test suite and standalone launch/persistence checks before GitHub publishes a release. Bundles include the Node.js runtime and its license, but no local drafts, credentials, or development dependencies.
+Version tags (`v*`) trigger Mac, Windows, and Linux builds. Each bundle must pass the test suite and standalone launch/persistence checks before GitHub publishes a release. Bundles include Node.js and the pinned OpenAI Codex component, with their licenses, but no local drafts, credentials, or development dependencies.
 
 ## License and credit
 

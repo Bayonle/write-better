@@ -4,6 +4,7 @@ import { promisify } from "node:util";
 import { mkdtemp, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { codexBinary, codexEnvironment } from "./codex";
 
 const exec = promisify(execFile);
 const schema = {
@@ -21,32 +22,18 @@ const tasks = {
   proofread: "Give one revision fixing only spelling, punctuation and grammar.",
 };
 let cachedStatus: { at: number; codex: boolean } | undefined;
-function codexEnvironment() {
-  // Let the CLI use its own sign-in. Never accidentally bill an inherited API key.
-  return Object.fromEntries(
-    [
-      "PATH",
-      "HOME",
-      "USER",
-      "LOGNAME",
-      "TMPDIR",
-      "CODEX_HOME",
-      "SSL_CERT_FILE",
-      "SSL_CERT_DIR",
-    ]
-      .filter((key) => process.env[key])
-      .map((key) => [key, process.env[key]]),
-  );
+export function clearAIStatus() {
+  cachedStatus = undefined;
 }
 export async function aiConfig(): Promise<AIConfig> {
   if (!cachedStatus || Date.now() - cachedStatus.at > 15000) {
     let codex = false;
     try {
-      const result = await exec(
-        process.env.CODEX_BIN || "codex",
-        ["login", "status"],
-        { env: codexEnvironment(), timeout: 5000, maxBuffer: 16000 },
-      );
+      const result = await exec(codexBinary(), ["login", "status"], {
+        env: codexEnvironment(),
+        timeout: 5000,
+        maxBuffer: 16000,
+      });
       codex = /Logged in using ChatGPT/i.test(result.stdout + result.stderr);
     } catch {}
     cachedStatus = { at: Date.now(), codex };
@@ -89,9 +76,7 @@ export async function generateSuggestions(input: AIInput) {
   const prompt = buildPrompt(input);
   if (input.provider === "codex") {
     if (!(await aiConfig()).providers.codex)
-      throw new Error(
-        "Sign in with ChatGPT using codex login, then reconnect in The Lab.",
-      );
+      throw new Error("Connect ChatGPT in The Lab, then try again.");
     const directory = await mkdtemp(join(tmpdir(), "write-on-ai-"));
     try {
       const schemaPath = join(directory, "schema.json");
@@ -133,7 +118,7 @@ export async function generateSuggestions(input: AIInput) {
       args.push("-");
       const result = await new Promise<string>((resolve, reject) => {
         const child = execFile(
-          process.env.CODEX_BIN || "codex",
+          codexBinary(),
           args,
           {
             cwd: directory,
@@ -148,7 +133,7 @@ export async function generateSuggestions(input: AIInput) {
                 ? "The subscription request timed out. Try again."
                 : /usage limit|rate.limit|quota/i.test(stderr)
                   ? "Your ChatGPT/Codex usage limit was reached. Try again after it resets."
-                  : "The ChatGPT subscription request failed. Check codex login status and your model access.";
+                  : "The ChatGPT request failed. Check your connection or reconnect ChatGPT in The Lab.";
               reject(new Error(message));
             } else resolve(stdout);
           },

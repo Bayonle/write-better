@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
+import { execFile, spawn } from "node:child_process";
+import { promisify } from "node:util";
 import { once } from "node:events";
 import { mkdtemp, rm, access } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -29,6 +30,20 @@ test(
     await assert.rejects(access(join(root, "data")));
     await assert.rejects(access(join(root, ".env")));
     const temporary = await mkdtemp(join(tmpdir(), "write-better-package-"));
+    const codex = join(
+      root,
+      "runtime",
+      "codex",
+      "bin",
+      process.platform === "win32" ? "codex.exe" : "codex",
+    );
+    await access(join(root, "runtime", "codex", "LICENSE"));
+    await access(join(root, "runtime", "codex", "NOTICE"));
+    const version = await promisify(execFile)(codex, ["--version"], {
+      env: { ...process.env, PATH: "" },
+      timeout: 10000,
+    });
+    assert.match(version.stdout, /codex-cli 0\.142\.4/);
     const socket = net.createServer().listen(0, "127.0.0.1");
     await once(socket, "listening");
     const port = socket.address().port;
@@ -39,6 +54,7 @@ test(
       PORT: String(port),
       WRITE_ON_DB_PATH: join(temporary, "notebook.sqlite"),
       WRITE_BETTER_NO_OPEN: "1",
+      CODEX_HOME: join(temporary, "codex"),
     };
     let child;
     let output = "";

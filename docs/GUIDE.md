@@ -63,9 +63,13 @@ Stop the existing server before starting another on the same port. `npm start` b
 
 ## AI with your ChatGPT subscription
 
-Install the official Codex CLI if needed, then run `codex login` and sign in with ChatGPT. Open **The Lab → Use → ChatGPT subscription (via Codex)**. Click **Reconnect** after signing in. An existing CLI ChatGPT sign-in is detected automatically. No API key is required for this option; requests use your ChatGPT/Codex allowance and are subject to its limits.
+Open **The Lab → Use → ChatGPT subscription → Connect ChatGPT**. Sign in on the OpenAI page that opens, then return to write_better. The app updates automatically when sign-in finishes. If the tab does not open or you close it, choose **Open sign-in page**. You can cancel and retry from The Lab.
 
-This is a local integration with the official CLI's [saved authentication](https://learn.chatgpt.com/docs/non-interactive-mode), not a new website OAuth registration. The app does not read or copy authentication tokens. Suggestion requests run in a temporary empty directory with a read-only sandbox, user configuration ignored, shell/browser/app/plugin tools disabled, and ephemeral sessions. The CLI's own authentication remains in its normal location. The CLI must support `exec --ignore-user-config --ephemeral --output-schema` (tested with 0.142.4). `CODEX_BIN` and `CODEX_MODEL` are optional overrides.
+The download includes OpenAI’s Codex component: no terminal commands, separate installation, or API key are needed. The OpenAI sign-in page may refer to Codex. An existing ChatGPT sign-in in Codex is detected automatically. Requests use your ChatGPT plan’s Codex allowance and are subject to its limits.
+
+Codex manages the browser OAuth flow, saved credentials, and token refresh using the official [app-server authentication protocol](https://github.com/openai/codex/blob/rust-v0.142.4/codex-rs/app-server/README.md#auth-endpoints). write_better does not read or copy authentication tokens. Cancel stops only the pending login; it does not sign you out of other Codex applications. Pending sign-ins expire after ten minutes. Closing The Lab does not interrupt sign-in; reopening it or reloading the app resumes the status check while the local server is running.
+
+The included component is pinned to 0.142.4 and updated with the app. For source checkouts, `npm install` installs it as a dependency. `CODEX_BIN` and `CODEX_MODEL` remain optional developer overrides. Suggestion requests use an empty temporary directory, a read-only sandbox, ignored user configuration, disabled shell/browser/app/plugin tools, and ephemeral sessions. Credentials remain in Codex’s normal location.
 
 ## Optional API key
 
@@ -79,17 +83,17 @@ The app binds only to `127.0.0.1`. Do not expose this personal server publicly: 
 
 ## Shortcuts
 
-| Shortcut | Action |
-| --- | --- |
-| ⌘ / Ctrl K | Insert link in Markdown; open the Lab in Write |
-| ⌘ / Ctrl B / I | Bold / italic in Markdown |
-| ⌘ / Ctrl Z | Undo |
-| ⌘ / Ctrl Shift Z | Redo |
-| ⌘ / Ctrl Shift F | Focus mode |
-| ⌘ / Ctrl S | Save locally |
-| Tab / Shift+Tab | Insert two spaces / remove up to two preceding spaces in either editor |
-| Escape, then Tab | Leave either editor; Escape then Shift+Tab moves backward |
-| Escape | Close dialogs and mobile side panels |
+| Shortcut         | Action                                                                 |
+| ---------------- | ---------------------------------------------------------------------- |
+| ⌘ / Ctrl K       | Insert link in Markdown; open the Lab in Write                         |
+| ⌘ / Ctrl B / I   | Bold / italic in Markdown                                              |
+| ⌘ / Ctrl Z       | Undo                                                                   |
+| ⌘ / Ctrl Shift Z | Redo                                                                   |
+| ⌘ / Ctrl Shift F | Focus mode                                                             |
+| ⌘ / Ctrl S       | Save locally                                                           |
+| Tab / Shift+Tab  | Insert two spaces / remove up to two preceding spaces in either editor |
+| Escape, then Tab | Leave either editor; Escape then Shift+Tab moves backward              |
+| Escape           | Close dialogs and mobile side panels                                   |
 
 ## Check
 

@@ -78,3 +78,77 @@ test("local server serves the app without exposing keys or arbitrary files", asy
     await once(server, "close");
   }
 });
+
+test("ChatGPT login endpoints reject cross-origin mutations and status reads", async () => {
+  const server = http.createServer(handle).listen(0, "127.0.0.1");
+  await once(server, "listening");
+  const port = server.address().port;
+  const request = (path, method, headers = {}) =>
+    new Promise((resolve, reject) => {
+      const req = http.request(
+        {
+          host: "127.0.0.1",
+          port,
+          path,
+          method,
+          headers: { host: "127.0.0.1:4317", ...headers },
+        },
+        (res) => {
+          let body = "";
+          res.on("data", (chunk) => (body += chunk));
+          res.on("end", () => resolve({ status: res.statusCode, body }));
+        },
+      );
+      req.on("error", reject);
+      req.end(method === "POST" ? "{}" : undefined);
+    });
+  try {
+    for (const endpoint of ["connect", "cancel"]) {
+      assert.equal(
+        (await request(`/api/chatgpt/${endpoint}`, "POST")).status,
+        403,
+      );
+      assert.equal(
+        (
+          await request(`/api/chatgpt/${endpoint}`, "POST", {
+            origin: "https://evil.example",
+            "content-type": "application/json",
+          })
+        ).status,
+        403,
+      );
+      assert.equal(
+        (
+          await request(`/api/chatgpt/${endpoint}`, "POST", {
+            origin: "http://127.0.0.1:4317",
+            "content-type": "text/plain",
+          })
+        ).status,
+        403,
+      );
+      assert.equal(
+        (await request(`/api/chatgpt/${endpoint}`, "GET")).status,
+        404,
+      );
+    }
+    assert.equal(
+      (
+        await request("/api/chatgpt/connection", "GET", {
+          "sec-fetch-site": "cross-site",
+        })
+      ).status,
+      403,
+    );
+    const status = await request("/api/chatgpt/connection", "GET");
+    assert.equal(status.status, 200);
+    assert.deepEqual(JSON.parse(status.body), { status: "idle" });
+    const cancelled = await request("/api/chatgpt/cancel", "POST", {
+      origin: "http://127.0.0.1:4317",
+      "content-type": "application/json",
+    });
+    assert.deepEqual(JSON.parse(cancelled.body), { status: "idle" });
+  } finally {
+    server.close();
+    await once(server, "close");
+  }
+});

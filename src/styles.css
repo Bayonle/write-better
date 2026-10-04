@@ -16,6 +16,9 @@
     --shadow: 0 24px 80px #0005;
     --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
     --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --control-height: 36px;
+    --control-gap: 8px;
+    --control-leading: 1.25;
   }
   [data-theme="paper"] {
     color-scheme: light;
@@ -56,6 +59,34 @@
   button {
     background: none;
     border: 0;
+  }
+  /* Action controls share a centered line box; prose/list buttons keep their layout. */
+  button:where(
+    .primary-button,
+    .text-button,
+    .icon-button,
+    .scope-switch button,
+    .alt-actions > button,
+    .alt-navigation button,
+    .note-actions button,
+    .selection-toolbar button,
+    .revision-options button,
+    .suggestion-result button,
+    .ai-source button,
+    .view-switch button,
+    .markdown-toolbar button,
+    .mobile-preview-switch button,
+    .toast button,
+    .notebook-return,
+    .notebook-empty button
+  ) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--control-gap);
+    min-height: var(--control-height);
+    line-height: var(--control-leading);
+    text-align: center;
   }
   button,
   input,
@@ -152,6 +183,7 @@
   }
   .icon {
     font-size: 19px;
+    line-height: 1;
   }
   .icon-button {
     width: 36px;
@@ -162,6 +194,9 @@
     color: var(--muted);
     font-size: 19px;
     border-radius: 5px;
+    padding: 0;
+    flex-shrink: 0;
+    line-height: 1;
   }
   @media (hover: hover) and (pointer: fine) {
     .icon-button:hover {
@@ -181,6 +216,8 @@
   }
   .dropdown button {
     display: flex;
+    align-items: center;
+    gap: 12px;
     justify-content: space-between;
     text-align: left;
     width: 100%;
@@ -247,7 +284,7 @@
   .scope-switch button {
     font-size: 12px;
     color: var(--muted);
-    padding: 0 0 12px;
+    padding: 8px 0;
     position: relative;
   }
   .scope-switch .active {
@@ -310,9 +347,12 @@
     display: none;
     text-align: center;
     color: var(--muted);
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
   }
   .alt-choice:focus-within .choice-remove {
-    display: block;
+    display: flex;
   }
   .alt-choice:has(.choice-remove) button:first-child {
     padding-right: 44px;
@@ -521,6 +561,7 @@
     padding: 4px 0;
   }
   .note-actions button:last-child {
+    min-width: var(--control-height);
     font-size: 16px;
     padding: 0 5px;
   }
@@ -572,6 +613,8 @@
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
+    min-height: 44px;
+    line-height: var(--control-leading);
   }
   @media (hover: hover) and (pointer: fine) {
     .lab-button:hover {
@@ -582,6 +625,7 @@
   .lab-icon {
     font-size: 17px;
     color: var(--accent);
+    line-height: 1;
   }
   .keycap,
   kbd {
@@ -684,7 +728,8 @@
     background: var(--accent);
     color: var(--bg);
     border-radius: 5px;
-    padding: 11px 16px;
+    min-height: 44px;
+    padding: 10px 16px;
     font-size: 13px;
   }
   @media (hover: hover) and (pointer: fine) {
@@ -700,11 +745,17 @@
     display: flex;
     justify-content: space-between;
     margin-bottom: 10px;
+    align-items: baseline;
+    gap: 8px 16px;
+    flex-wrap: wrap;
   }
   .lab-section-label > span {
     font-size: 12px;
     letter-spacing: 0;
     color: var(--green);
+  }
+  .lab-section-label > .ai-disconnected {
+    color: var(--muted);
   }
   .lab-action {
     display: flex;
@@ -738,8 +789,8 @@
     color: var(--muted);
     max-height: 100px;
     overflow: auto;
-    border-left: 2px solid var(--line);
-    padding-left: 12px;
+    border-block: 1px solid var(--line);
+    padding-block: 12px;
     margin: 16px 0;
     white-space: pre-wrap;
   }
@@ -754,12 +805,14 @@
     border-radius: 4px;
     padding: 12px 5px;
     font-size: 12px;
+    flex-direction: column;
+    gap: 6px;
   }
   .revision-options small {
     display: block;
     color: var(--muted);
     font-size: 12px;
-    margin-top: 5px;
+    margin-top: 0;
   }
   #lab-results {
     margin-top: 20px;
@@ -924,7 +977,7 @@
       box-shadow: var(--shadow);
     }
     #mobile-overflow {
-      display: block;
+      display: inline-flex;
     }
     .topbar {
       padding: 0 26px;
@@ -1026,7 +1079,7 @@
     }
     #mobile-alts,
     #mobile-overflow {
-      display: block;
+      display: inline-flex;
       font-size: 12px;
     }
     .lab-button {
@@ -1118,9 +1171,11 @@
     padding-bottom: 8px;
     font-size: 12px;
   }
-  .inline-alternatives .choice-remove {
-    display: block;
+  .inline-alternatives .alt-choice .choice-remove {
+    display: flex;
     opacity: 0.65;
+    padding: 0;
+    font-size: 18px;
   }
   .inline-alternatives .choice-meta {
     font-size: 12px;
@@ -1147,7 +1202,7 @@
   }
   .ai-source {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     align-items: center;
     margin: 18px 0;
     font-size: 13px;
@@ -1160,7 +1215,8 @@
     border: 1px solid var(--line);
     border-radius: 4px;
     color: var(--text);
-    padding: 9px;
+    min-height: 44px;
+    padding: 10px;
     font: inherit;
     min-width: 0;
     flex: 1;
@@ -1168,9 +1224,52 @@
   .ai-source button {
     color: var(--accent);
     font-size: 12px;
+    min-height: 44px;
+    min-width: 108px;
+    flex-shrink: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
   }
   .ai-source select:focus-visible {
     outline: 2px solid var(--accent);
+  }
+  .ai-source .primary-button {
+    background: var(--accent);
+    color: var(--bg);
+  }
+  .chatgpt-connection {
+    font-size: 13px;
+    line-height: 1.8;
+  }
+  .chatgpt-connection p {
+    margin: 12px 0;
+  }
+  .connection-detail {
+    color: var(--muted);
+  }
+  .connection-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px 24px;
+    flex-wrap: wrap;
+  }
+  .connection-actions a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .ai-source button:hover:not(:disabled),
+    .revision-options button:hover:not(:disabled),
+    .alt-navigation button:hover:not(:disabled),
+    .suggestion-result button:hover:not(:disabled) {
+      background: var(--raised);
+      border-color: var(--faint);
+    }
   }
   @media (prefers-reduced-motion: reduce) {
     *,
@@ -1509,7 +1608,7 @@
       right: 16px;
       left: auto;
       transform: none;
-      min-height: 40px;
+      min-height: 44px;
     }
     .footer-right {
       width: 100%;
@@ -1518,7 +1617,7 @@
       gap: 2px;
     }
     .footer-right .icon-button {
-      display: block;
+      display: inline-flex;
       font-size: 20px;
     }
     #mobile-alts,
@@ -1626,7 +1725,7 @@
     text-decoration-color: var(--accent);
   }
   .alt-choice:hover .choice-remove {
-    display: block;
+    display: flex;
   }
   .new-line:hover span {
     opacity: 1;
@@ -1916,4 +2015,46 @@
 
 body:has(.notebook-view) .toast {
   bottom: 24px;
+}
+
+@layer base {
+  @media (max-width: 700px), (pointer: coarse) {
+    :root {
+      --control-height: 44px;
+    }
+    .icon-button,
+    .markdown-toolbar button,
+    .alt-navigation button,
+    .alt-choice .choice-remove {
+      min-width: 44px;
+      min-height: 44px;
+    }
+  }
+  @media (max-width: 600px) {
+    .ai-source {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 8px;
+      align-items: stretch;
+    }
+    .ai-source button {
+      justify-self: start;
+    }
+    .ai-source select,
+    .ai-source button,
+    .revision-options button,
+    .revision-options small,
+    .primary-button,
+    .lab-action strong,
+    .lab-action small {
+      font-size: 14px;
+    }
+    .revision-options {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .topbar {
+      padding-inline: 16px;
+    }
+  }
 }

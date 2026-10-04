@@ -87,14 +87,23 @@ export function Lab({
       ))}
       <div className="lab-section-label ai-section">
         TRY ANOTHER TAKE{" "}
-        <span>
+        <span
+          className={
+            !ai.connected || ai.connecting ? "ai-disconnected" : undefined
+          }
+          role="status"
+        >
           {ai.connecting
             ? "Checking connection"
             : ai.connected
               ? ai.provider === "codex"
                 ? "ChatGPT connected"
                 : "API connected"
-              : "Not connected"}
+              : ai.provider === "codex" && ai.connection.status === "waiting"
+                ? "Finish sign-in"
+                : ai.provider === "codex" && ai.connection.status === "starting"
+                  ? "Opening sign-in"
+                  : "Not connected"}
         </span>
       </div>
       <div className="ai-source">
@@ -106,22 +115,77 @@ export function Lab({
             ai.chooseProvider(event.target.value as Provider)
           }
         >
-          <option value="codex">ChatGPT subscription (via Codex)</option>
+          <option value="codex">ChatGPT subscription</option>
           <option value="api">OpenAI API (separate billing)</option>
         </select>
-        <button disabled={ai.connecting} onClick={() => void ai.connect()}>
-          Reconnect
-        </button>
+        {ai.provider === "codex" && !ai.connected ? (
+          <button
+            className="primary-button"
+            disabled={
+              ai.connecting ||
+              ai.connection.status === "starting" ||
+              ai.connection.status === "waiting"
+            }
+            onClick={() => void ai.signIn()}
+          >
+            {ai.connection.status === "starting"
+              ? "Opening sign-in…"
+              : ai.connection.status === "waiting"
+                ? "Waiting for sign-in…"
+                : "Connect ChatGPT"}
+          </button>
+        ) : (
+          <button disabled={ai.connecting} onClick={() => void ai.connect()}>
+            {ai.connecting ? "Checking…" : "Check connection"}
+          </button>
+        )}
       </div>
       <p className="dialog-note">
         {ai.provider === "codex"
           ? ai.connected
-            ? "Uses your signed-in Codex account and ChatGPT/Codex allowance. Your selected text and nearby paragraph context are sent only when you ask."
-            : "Run codex login, choose ChatGPT, then click Reconnect. No API key needed."
+            ? "Uses your ChatGPT plan’s Codex allowance. Your selected text and nearby paragraph context are sent only when you ask."
+            : "Sign in with ChatGPT in your browser. No terminal, separate installation, or API key needed. Uses your plan’s Codex allowance."
           : ai.connected
             ? "Uses your API key with separate API billing. Your selected text and nearby paragraph context are sent only when you ask."
             : "Add OPENAI_API_KEY to .env and restart to use the separately billed API option."}
       </p>
+      {ai.provider === "codex" && !ai.connected && (
+        <div className="chatgpt-connection" aria-live="polite">
+          {ai.connection.status === "starting" && (
+            <p>Preparing your secure sign-in…</p>
+          )}
+          {ai.connection.status === "waiting" && (
+            <>
+              <p>
+                Finish signing in on the OpenAI page, then return here. This
+                screen updates automatically.
+              </p>
+              <p className="connection-detail">
+                The sign-in page may say Codex. That’s the OpenAI component
+                included with write_better.
+              </p>
+              <div className="connection-actions">
+                <a
+                  href={ai.connection.authUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Open sign-in page ↗
+                </a>
+                <button
+                  className="text-button"
+                  onClick={() => void ai.cancelSignIn()}
+                >
+                  Cancel
+                </button>
+              </div>
+            </>
+          )}
+          {ai.connection.status === "error" && (
+            <p role="alert">{ai.connection.message}</p>
+          )}
+        </div>
+      )}
       <div className="ai-target">
         {target?.text ||
           "In Write mode, select a passage or place your cursor in a paragraph to try an AI revision."}
